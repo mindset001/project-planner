@@ -4,8 +4,17 @@
         
         <div><h3 @click="atClick">{{project.title}}</h3></div>
         <div class="icons">
-            <span class="material-icons tick" @click="toggleComplete"> done </span>
-            <router-link :to= "{ name: 'EditProject', params: { id: project.id } }"><span class="material-icons"> edit </span></router-link>
+
+
+            <span class="material-icons tick" 
+            @click="toggleComplete"> done </span>
+
+
+
+            <router-link :to= "`/projects/${ project.id }`">
+            <span class="material-icons"> edit </span></router-link>
+
+
             <span class="material-icons" @click="atDelete(project.id)"> delete </span>
         </div>
         
@@ -17,6 +26,7 @@
 </template>
 
 <script>
+import { db, updateDoc, doc,  } from "@/Firebase/firebase"
 export default {
     props: ['project', 'atDelete', ],
     data (){
@@ -30,18 +40,30 @@ export default {
                 this.detail = !this.detail
         },
         
-        toggleComplete(){
-            fetch(this.uri, {
-                method: "PATCH",
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(   {complete: !this.project.complete})
-            }).then (() => {
-                this.$emit('complete', this.project.id)
+        async toggleComplete(){
+            // fetch(this.uri, {
+            //     method: "PATCH",
+            //     headers: {'Content-Type': 'application/json'},
+            //     body: JSON.stringify(   {complete: !this.project.complete})
+            // }).then (() => {
+            //     this.$emit('complete', this.project.id)
                 
-            }).catch((err) => console.log(err))
+            // }).catch((err) => console.log(err))
+
+            // console.log("function complete");
+             const upCollection = doc(db, 'planning', this.project.id)
+            await updateDoc(upCollection, {
+                complete: !this.project.complete
+            })
+            this.$router.go('/')
+            // await getDocs(collection(db, 'planning'))
+            // this.$router.push('/')
         },
 
     },
+    mounted(){
+        console.log(this.project);
+    }
       
     
 }

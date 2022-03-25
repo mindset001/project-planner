@@ -14,10 +14,13 @@
 // @ is an alias to /src
 import Singleproject from "@/components/Singleproject"
 import FilteredNav from "@/components/FilteredNav"
+import { db, collection, getDocs, deleteDoc, doc } from "@/Firebase/firebase"
+
 
 
 
 export default {
+
   name: 'Home',
   components: {
     Singleproject,
@@ -29,25 +32,51 @@ export default {
       current: 'all'
     }
   },
-  mounted(){
-    fetch("http://localhost:3000/projects")
-    .then(res => res.json())
-    .then(data => this.projects = data)
+  async mounted(){
+    // fetch("http://localhost:3000/projects")
+
+    const getCollection = collection( db, 'planning')
+    await getDocs(getCollection)
+
+    .then(res => res.forEach(data => {
+      this.projects.push({...data.data(), id:data.id})
+    }))
+    // .then(data => this.projects = data)
     .catch(err => console.log(err.message))
   },
+
+
+
   
   methods: {
-    atDelete(go){
-      const shak = this.projects.filter((comot) => comot.id != go)
+    async atDelete(go){
+      // const shak = this.projects.filter((comot) => comot.id != go)
       // this.projects = shak
       
 
-      fetch("http://localhost:3000/projects/" + go, {
-        method: "DELETE"
+      // fetch("http://localhost:3000/projects/" + go, {
+      //   method: "DELETE"
+      // })
+     const temData = []
+
+      const delCollection = await doc(db, 'planning', go)
+            await deleteDoc(delCollection )
+            await getDocs(collection(db, 'planning'))
+      // .then(()=> this.projects = shak)
+      .then(res => {
+        res.forEach(data => {
+      temData.push({...data.data(), id:data.id})
+    })
+    this.projects = temData
       })
-      .then(()=> this.projects = shak)
+    // .then(data => this.projects = data)
+    .catch(err => console.log(err.message))
       
     },
+
+
+
+
     handleComplete(id) {
       let p = this.projects.find(project => {
         return project.id === id

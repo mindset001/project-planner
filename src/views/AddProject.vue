@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import { db, collection, addDoc } from "@/Firebase/firebase"
+
 export default {
     data() {
         return{
@@ -18,22 +20,30 @@ export default {
         
     },
     methods: {
-        handleSubmit(){
-            let project = {
+       async handleSubmit(){
+            try {
+                let project = {
                 title: this.title,
                 details: this.details,
                 complete: false
             }
-            fetch('http://localhost:3000/projects', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(project)
-            })
-            .then(()=> {
-                this.$router.push('/')
-            })
-            .catch((err) => console.log(err.message))
-        }
+            // fetch('http://localhost:3000/projects', {
+            //     method: 'POST',
+            //     headers: {'Content-Type': 'application/json'},
+            //     body: JSON.stringify(project)
+            // })
+            const setCollection = await collection(db, 'planning')
+            await addDoc(setCollection, project)
+            this.$router.push('/')
+        
+            } catch (error) {
+                
+            console.log(error);
+       }
+    }
+    },
+
+    mounted(){
     }
 }
 </script>

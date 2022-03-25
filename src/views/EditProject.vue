@@ -4,6 +4,7 @@
         <label >Title:</label>
         <input type="text" required v-model="title">
         <label >Details</label>
+
         <input type="text" required v-model="details">
         <button >Update Project</button>
     </form>
@@ -12,6 +13,7 @@
 </template>
 
 <script>
+import { db, updateDoc, doc,  } from "@/Firebase/firebase"
 export default {
     props: ['id'],
     data(){
@@ -22,25 +24,39 @@ export default {
         }
     },
     mounted(){
-        fetch(this.uri)
-        .then(res => res.json())
-        .then(data => {
-            this.details = data.details,
-        this.title = data.title
-        })
+        // fetch(this.uri)
+        // .then(res => res.json())
+        // .then(data => {
+        //     this.details = data.details,
+        // this.title = data.title
+        // })
     },
     methods: {
-        handleSubmit(){
-            fetch(this.uri, {
-                method: "PATCH",
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify( {title: this.title, details: this.details})
-            }).then(() => {
-                this.$router.push('/')
-            }).catch(err => console.log(err.message))
+      async handleSubmit(){
+            // fetch(this.uri, {
+            //     method: "PATCH",
+            //     headers: {'Content-Type': 'application/json'},
+            //     body: JSON.stringify( {title: this.title, details: this.details})
+            // }).then(() => {
+            //     this.$router.push('/')
+            // }).catch(err => console.log(err.message))
+            const upCollection = await doc(db, 'planning', this.$route.params.id )
+            await updateDoc(upCollection, {
+                title: this.title,
+                details: this.details
+            })
+            // await getDocs(collection(db, 'planning'))
+            this.$router.push('/')
+        
+            }
+            //  catch (error) {
+                
+            // console.log(error);
+
+
         },
     }
-}
+
 </script>
 
 
